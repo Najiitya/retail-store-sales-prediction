@@ -5,7 +5,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const sale = require('./models/sale');
-const saleRoute = require('./routes/saleRoutes')
+const saleRoute = require('./routes/saleRoutes');
+const itemRoutes = require('./routes/itemRoutes');
 
 //initialze the express application
 const app = express();
@@ -32,6 +33,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/sales', saleRoute);
+
+app.use('/api/items', itemRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
