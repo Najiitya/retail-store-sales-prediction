@@ -1,12 +1,22 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware  # 🚨 NEW: You need this import
 from pydantic import BaseModel
 import pandas as pd
 import joblib
 
-#Initialize the app
+# Initialize the app
 app = FastAPI(title="Retail AI Predictor")
 
-#Load the trained AI brain
+# 🚨 NEW: The CORS Security Bypass for Chrome
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=False, 
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Load the trained AI brain
 try:
     print("Loading AI model")
     model = joblib.load('sales_predictor.pkl')
@@ -26,6 +36,7 @@ class PredictionRequest(BaseModel):
 def predict_sales(request: PredictionRequest):
     if model is None:
         raise HTTPException(status_code=500, detail="AI model is not loaded")
+    
     # Convert the incoming JSON into a format the AI understands (Pandas DataFrame)
     input_data = pd.DataFrame([{
         'store': request.store,
@@ -35,10 +46,10 @@ def predict_sales(request: PredictionRequest):
         'day_of_week': request.day_of_week
     }])
 
-    #Ask AI for a prediction
+    # Ask AI for a prediction
     prediction = model.predict(input_data)
 
-    #retrun the answer
+    # Return the answer
     return {
         "store": request.store,
         "item": request.item,
